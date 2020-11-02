@@ -1,0 +1,9 @@
+AM
+Computer-Systems
+KE
+!assignments/KE
+!assignments/CS
+!assignments/AM
+.mypy_cache
+*.pdf
+*.data

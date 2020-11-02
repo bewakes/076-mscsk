@@ -1,0 +1,125 @@
+\documentclass[12pt]{article}
+
+\usepackage{bm}
+\usepackage[top=1in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
+
+\title{Multidimensional Scaling(MDS)}
+\date{2020-10-11}
+\author{Bibek Pandey}
+
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+
+\begin{document}
+
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+
+       {\huge Multidimensional Scaling} \\
+       \vspace{0.5cm}
+       Assignment Notes
+
+       \vfill
+
+       By \\
+       \vspace{0.5cm}
+       Bibek Pandey \\
+       \textbf{076mscsk003}
+       \vspace{1.5cm}
+
+       \vfill
+
+       An assignment presented to \\
+       \vspace{0.3cm}
+       \textbf{Dr.\ Aman Shakya}
+
+       \vspace{1.5cm}
+       \textbf{2020 October 11}
+
+   \end{center}
+\end{titlepage}
+
+\section*{Multidimensional Scaling(MDS)}
+Multidimensional Scaling, also known as Principal Coordinates Analysis (PCoA),
+is a way of reconstructing/visualizing how the data points are situated in a
+space given the pairwise distances/dissimilarities between the points.
+The main objective of MDS is to represent these dissimilarities as distances
+between points in a low dimensional space such that the distances correspond as
+closely as possible to the dissimilarities.
+\newline \newline
+Mathematically, given a dissimilarity matrix $D$ with $d_{ij}$ being the
+dissimilarity or distance between the elements $\vect{x_i}$ and $\vect{x_j}$,
+Multidimensional Scaling tries to find $\vect{x_i}$s in a space such that
+$d_{ij}$ and  $||\vect{x_i} - \vect{x_j}||$ are as
+close as possible where $||\quad||$ denotes the distance.
+\newline \newline
+It is important to note that the algorithm gives exact solution for Euclidean
+distances but the relative distance is maintained for non-Euclidean distances
+as well.
+
+\section*{Problem statement(Classical MDS)}
+Given a $n$-dimensional Euclidean Distance matrix $D = (d_{ij})$, we wish to find
+$\boldsymbol{X} = [\vect{x_1}, \vect{x_2}, \ldots, \vect{x_n}]$ so that $||\vect{x_i} - \vect{x_j}|| = d_{ij}$.
+
+\section*{Types of MDS}
+\subsection*{Metric MDS}
+In metric scaling, the dissimilarities between all objects are known numbers,
+and they are approximated by distances. The objects are mapped into a metric
+space, distances are computed and compared with the dissimilarities. Based on
+the computed and original distances, the objects are moved such that the error
+is minimized.
+\subsection*{Non-metric MDS}
+In some cases, when only the ordinal data is present instead of distances or
+when there is incomplete information. In such cases, often a \textit{distance completion
+problem} is to be solved where the objects configuration is created from subset
+of given distances while computing other distances at the same time.
+\subsection*{Generalized MDS}
+This is an extension of Metric MDS in which the target space is an arbitrary
+smooth non-Euclidean space.
+
+\section*{Other Types}
+\subsection*{Three-way Scaling}
+When we have information on distances between $n$ objects on $m$ occassions or
+subjects, we can deal with this by either performing separate MDS on $m$
+subjects or perform single MDS on average subject. Three-way scaling chooses a
+strategy between these two extremes.
+\subsection*{Unfolding}
+Sometimes we have information about off-diagonal dissimilarities only or we
+have \textit{conditional} information. In these cases, the unfolding data is very sparse.
+\subsection*{Restricted MDS}
+Here, we impose restrictions on the representation of the object in the target
+space. For example, the objects may be on a rectangular grid, circle, eclipse,
+etc.
+
+\section*{Loss Functions}
+The goal of every MDS problem is to minimize a loss function, also called as
+\textit{stress}. Loss function for MDS depicts the relative difference in given
+distance and computed distance in target space. The following loss functions are used:
+\begin{itemize}
+    \item [-] Least Squares on Distances
+    \item [-] Least Squares on Squared Distances
+    \item [-] Least Squares on Inner Products
+\end{itemize}
+
+\section*{Applications}
+Originally used in psychometrics, MDS now finds applications in following fields:
+\begin{itemize}
+    \item[-] In Geodesy, for triangulation of a point.
+    \item[-] In Machine Learning, as a dimensionality reduction technique.
+    \item[-] In genetics for \textit{gene stringing}.
+    \item[-] In recommendation systems for figuring out user preferences from relative behaviours.
+    \item[-] In sociology and politicial science to study conflict and negotiation.
+    \item[-] In economimcs, for identifying economimc crisis and booms.
+    \item[-] In biochemistry, for identifying molecular structures.
+\end{itemize}
+
+\section*{Sources}
+\begin{itemize}
+    \item[-] \textit{https://www.researchgate.net/publication/2634627\_Multidimensional\_Scaling}
+    \item[-] \textit{https://www.stat.pitt.edu/sungkyu/course/2221Fall13/lec8\_mds\_combined.pdf}
+    \item[-] \textit{https://www.statisticshowto.com/multidimensional-scaling/}
+    \item[-] \textit{https://medium.com/datadriveninvestor/the-multidimensional-scaling-mds-algorithm-for-dimensionality-reduction-9211f7fa5345}
+    \item[-] \textit{https://en.wikipedia.org/wiki/Multidimensional\_scaling}
+\end{itemize}
+
+\end{document}

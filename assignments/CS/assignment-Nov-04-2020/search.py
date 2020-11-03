@@ -4,7 +4,7 @@ import sys
 import multiprocessing as mp
 
 LIST_SIZE = 6000000
-NUMBER_LENGTH = 5  # zero padded 5 digit numbers
+NUMBER_LENGTH = 5  # zero padded 5 digit number
 
 
 class log_time:
@@ -34,7 +34,7 @@ def search_number(data, number, queue=None):
     total_count = 0
     first_index = None
     for i, x in enumerate(data):
-        [b for b in range(100)]  # NOTE: this is just to increase time per iteration to make each iteration significant
+        [b for b in range(50)]  # NOTE: this is just to increase time per iteration to make each iteration significant
         if x == number:
             total_count += 1
             first_index = i if first_index is None else first_index
@@ -66,7 +66,7 @@ def run_parallel(filename, number, num_processes=2):
         ind, cnt = queue.get()
         total_count += cnt
         if ind is not None:
-            first_index = ind if first_index is None or i*chunk_size + ind < first_index else first_index
+            first_index = i*chunk_size + ind if first_index is None or i*chunk_size + ind < first_index else first_index
     print((first_index, total_count))
 
 

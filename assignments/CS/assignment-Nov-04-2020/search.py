@@ -1,3 +1,4 @@
+import argparse
 import math
 import time
 import sys
@@ -25,7 +26,10 @@ def read_data_seek(fname='numbers.data', line_start=0, line_end=1):
         f.seek(line_start * (NUMBER_LENGTH + 1))  # +1 for newline
         line = line_start
         while line < line_end:
-            data.append(int(f.readline()))
+            try:
+                data.append(int(f.readline()))
+            except:
+                pass
             line += 1
     return data
 
@@ -34,7 +38,6 @@ def search_number(data, number, queue=None):
     total_count = 0
     first_index = None
     for i, x in enumerate(data):
-        [b for b in range(50)]  # NOTE: this is just to increase time per iteration to make each iteration significant
         if x == number:
             total_count += 1
             first_index = i if first_index is None else first_index
@@ -50,8 +53,8 @@ def run_parallel(filename, number, num_processes=2):
 
     processes = []
     for i in range(num_processes):
-        with log_time(f'read data chunk {i+1}'):
-            data = read_data_seek(filename, i * chunk_size, (i+1) * chunk_size)
+        # with log_time(f'read data chunk {i+1}'):
+        data = read_data_seek(filename, i * chunk_size, (i+1) * chunk_size)
         p = mp.Process(target=search_number, args=(data, number, queue))
         p.start()
         processes.append(p)
@@ -71,28 +74,29 @@ def run_parallel(filename, number, num_processes=2):
 
 
 def run_sequential(filename, number):
-    with log_time('read_data'):
-        data = read_data_seek(filename, 0, LIST_SIZE)
-    with log_time('search number'):
-        print(search_number(data, number))
+    # with log_time('read_data'):
+    data = read_data_seek(filename, 0, LIST_SIZE)
+    # with log_time('search number'):
+    print(search_number(data, number))
 
 
 def main():
-    if len(sys.argv) < 2:
-        print('ERROR: Provide an integer to search for')
-        exit()
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('-n', '--number', type=int,
+                    help='an integer to look for')
+    parser.add_argument('-p', '--processors', type=int, nargs='?', default=1,
+                    help='number of processors')
 
-    number = int(sys.argv[1])
-    processors = 8
+    args = parser.parse_args()
     filename = 'numbers_unsorted.data'
-    if len(sys.argv) > 2 and sys.argv[2] == 'parallel':
+
+    if args.processors > 1:
         with log_time('parallel run'):
-            run_parallel(filename, number, processors)
+            run_parallel(filename, args.number, args.processors)
     else:
         with log_time('sequential run'):
-            run_sequential(filename, number)
+            run_sequential(filename, args.number)
 
 
 if __name__ == '__main__':
-    with log_time('total_runtime'):
-        main()
+    main()

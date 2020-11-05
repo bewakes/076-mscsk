@@ -7,3 +7,5 @@ KE
 .mypy_cache
 *.pdf
 *.data
+.ipynb_checkpoints/
+*.out

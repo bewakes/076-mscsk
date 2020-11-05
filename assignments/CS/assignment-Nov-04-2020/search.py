@@ -1,11 +1,10 @@
 import argparse
 import math
 import time
-import sys
 import multiprocessing as mp
 
-LIST_SIZE = 6000000
-NUMBER_LENGTH = 5  # zero padded 5 digit number
+LIST_SIZE = 100 * 1000000
+NUMBER_LENGTH = 7  # zero padded 5 digit number
 
 
 class log_time:
@@ -28,7 +27,7 @@ def read_data_seek(fname='numbers.data', line_start=0, line_end=1):
         while line < line_end:
             try:
                 data.append(int(f.readline()))
-            except:
+            except Exception:
                 pass
             line += 1
     return data
@@ -47,8 +46,8 @@ def search_number(data, number, queue=None):
         return (first_index, total_count)
 
 
-def run_parallel(filename, number, num_processes=2):
-    chunk_size = math.ceil(LIST_SIZE / num_processes)
+def run_parallel(filename, number, num_processes=2, size=LIST_SIZE):
+    chunk_size = math.ceil(size/ num_processes)
     queue = mp.Queue()
 
     processes = []
@@ -73,9 +72,9 @@ def run_parallel(filename, number, num_processes=2):
     print((first_index, total_count))
 
 
-def run_sequential(filename, number):
+def run_sequential(filename, number, size=LIST_SIZE):
     # with log_time('read_data'):
-    data = read_data_seek(filename, 0, LIST_SIZE)
+    data = read_data_seek(filename, 0, size)
     # with log_time('search number'):
     print(search_number(data, number))
 
@@ -86,16 +85,18 @@ def main():
                     help='an integer to look for')
     parser.add_argument('-p', '--processors', type=int, nargs='?', default=1,
                     help='number of processors')
+    parser.add_argument('-d', '--data-size', type=int, nargs='?', default=LIST_SIZE,
+                    help=f'data size, defaults to {LIST_SIZE}')
 
     args = parser.parse_args()
     filename = 'numbers_unsorted.data'
 
-    if args.processors > 1:
+    if args.processors >= 1:
         with log_time('parallel run'):
-            run_parallel(filename, args.number, args.processors)
+            run_parallel(filename, args.number, args.processors, args.data_size)
     else:
         with log_time('sequential run'):
-            run_sequential(filename, args.number)
+            run_sequential(filename, args.number, args.data_size)
 
 
 if __name__ == '__main__':

@@ -33,7 +33,7 @@ def read_data_seek(fname='numbers.data', line_start=0, line_end=1):
     return data
 
 
-def search_number(data, number, queue=None):
+def search_number(data, number, queue=None, pindex=None):
     total_count = 0
     first_index = None
     for i, x in enumerate(data):
@@ -41,20 +41,23 @@ def search_number(data, number, queue=None):
             total_count += 1
             first_index = i if first_index is None else first_index
     if queue:
-        queue.put((first_index, total_count))
+        queue.put((first_index, total_count, pindex))
     else:
         return (first_index, total_count)
 
 
+def read_chunk_and_search(filename, p_index, chunk_size, number, queue):
+    data = read_data_seek(filename, p_index * chunk_size, (p_index+1) * chunk_size)
+    return search_number(data, number, queue, p_index)
+
+
 def run_parallel(filename, number, num_processes=2, size=LIST_SIZE):
-    chunk_size = math.ceil(size/ num_processes)
+    chunk_size = math.ceil(size / num_processes)
     queue = mp.Queue()
 
     processes = []
     for i in range(num_processes):
-        # with log_time(f'read data chunk {i+1}'):
-        data = read_data_seek(filename, i * chunk_size, (i+1) * chunk_size)
-        p = mp.Process(target=search_number, args=(data, number, queue))
+        p = mp.Process(target=read_chunk_and_search, args=(filename, i, chunk_size, number, queue))
         p.start()
         processes.append(p)
 
@@ -65,10 +68,11 @@ def run_parallel(filename, number, num_processes=2, size=LIST_SIZE):
     first_index = None
     total_count = 0
     for i in range(num_processes):
-        ind, cnt = queue.get()
+        ind, cnt, p_ind = queue.get()
         total_count += cnt
         if ind is not None:
-            first_index = i*chunk_size + ind if first_index is None or i*chunk_size + ind < first_index else first_index
+            actual_index = p_ind*chunk_size + ind
+            first_index = actual_index if first_index is None or actual_index < first_index else first_index
     print((first_index, total_count))
 
 

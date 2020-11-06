@@ -1,4 +1,13 @@
-from constants import year_pattern, date_pattern, verbose_pattern, days_verbose_pattern
+from constants import (
+    bcolors,
+    year_pattern,
+    date_pattern,
+    verbose_pattern,
+    verbose_days_pattern,
+    verbose_years_pattern,
+    day_month_pattern,
+    all_date_pattern,
+)
 import traceback
 
 passed = 0
@@ -17,11 +26,11 @@ def log_pass_fail(f):
         try:
             r = f(*args, **kwargs)
             passed += 1
-            print('PASSED', '................', f.__name__)
+            print(bcolors.OKGREEN+f.__name__, '................ PASSED', bcolors.ENDC)
             return r
         except AssertionError:
             failed += 1
-            print('FAILED', '................', f.__name__)
+            print(bcolors.FAIL+f.__name__, '................ FAILED', bcolors.ENDC)
             failed_logs.append((f.__name__, traceback.format_exc()))
     return wrapped
 
@@ -38,11 +47,12 @@ def test_year_formats():
         '3402', '3111'
     ]
     for valid in valid_years:
-        m = year_pattern.match(valid)
-        assert m, f'{valid} is a valid year'
+        assert year_pattern.search(valid), f'{valid} is a valid year'
+        assert all_date_pattern.search(valid), f'{valid} is a valid year'
 
     for invalid in invalid_years:
-        assert not year_pattern.match(invalid), f'{invalid} is an invalid year'
+        assert not year_pattern.search(invalid), f'{invalid} is an invalid year'
+        assert not all_date_pattern.search(invalid), f'{invalid} is an invalid year'
 
 
 @log_pass_fail
@@ -65,9 +75,12 @@ def test_date_formats():
         '1st March 1999',
         '2nd July 2000',
         '3rd May 2000',
+        'November 29, 1971',
+        'Mar 29, 1971'
     ]
     for date in valid_dates:
-        assert date_pattern.match(date.lower()), f'{date} is a valid format'
+        assert date_pattern.search(date.lower()), f'{date} is a valid format'
+        assert all_date_pattern.search(date.lower()), f'{date} is a valid format'
 
 
 @log_pass_fail
@@ -82,18 +95,67 @@ def test_extra_dates():
     ]
 
     for v in verbose_dates:
-        verbose_pattern.match(v.lower()), f'{v} is a valid verbose date'
+        verbose_pattern.search(v.lower()), f'{v} is a valid verbose date'
+        all_date_pattern.search(v.lower()), f'{v} is a valid verbose date'
 
 
 @log_pass_fail
 def test_days_verbose():
     days = [
-        'Sunday', ' Monday', 'last wednesday', 'next Saturday', 'This thursday',
+        ' Sunday ', ' Monday', 'last wednesday', 'next Saturday', 'This thursday',
         'friday', 'Thursday'
     ]
 
     for d in days:
-        assert days_verbose_pattern.match(d.lower()), f'{d} is a valid verbose day'
+        assert verbose_days_pattern.search(d.lower()), f'{d} is a valid verbose day'
+        assert all_date_pattern.search(d.lower()), f'{d} is a valid verbose day'
+
+
+@log_pass_fail
+def test_bc_year():
+    assert False, "not implemented"
+
+
+@log_pass_fail
+def test_x0s_years():
+    years = [
+        '90s', '80s', '70s'
+    ]
+    for y in years:
+        assert verbose_years_pattern.search(y), f'{y} is valid'
+        assert all_date_pattern.search(y), f'{y} is valid'
+
+
+@log_pass_fail
+def test_day_month():
+    cases = [
+        '29th of December', 'December 29', '29 December', '29th December', 'December 29th'
+    ]
+    for case in cases:
+        assert day_month_pattern.search(case.lower()), f'{case} is valid'
+        assert all_date_pattern.search(case.lower()), f'{case} is valid'
+
+    invalids = [
+        '214 November', '00 November', '00th November', '22rd January',
+        '3th February', 'september 00', '2st march', '1rd Dec', '3nd April',
+        'may 3nd',
+        'june 2th',
+        'july 1th',
+    ]
+
+    for inv in invalids:
+        assert not day_month_pattern.search(inv.lower()), f'{inv} is invalid'
+        assert not all_date_pattern.search(inv.lower()), f'{inv} is invalid'
+
+
+@log_pass_fail
+def test_misc():
+    dates = [
+        '213 BC', '7th Century', '5th century B.C.', '29th December',
+    ]
+    for d in dates:
+        assert all_date_pattern.search(d.lower()), f'{d} should be valid'
+    assert False, 'not implemented'
 
 
 def main():
@@ -101,18 +163,24 @@ def main():
     test_date_formats()
     test_extra_dates()
     test_days_verbose()
+    test_day_month()
+    test_misc()
+    test_bc_year()
+    test_x0s_years()
     print()
-    print('TOTAL', total)
-    print('PASSED', passed)
-    print('FAILED', failed)
+    print(f'{bcolors.BOLD}{total} TOTAL', bcolors.ENDC)
+    print(f'{bcolors.OKGREEN}{passed} PASSED', bcolors.ENDC)
+    print(f'{bcolors.FAIL}{failed} FAILED', bcolors.ENDC)
 
     print()
+    if not failed_logs:
+        return
     print('----------------------------')
     print('FAILS DETAIL')
     print('----------------------------')
     print()
     for fname, trace in failed_logs:
-        print('FAILING', fname)
+        print(bcolors.FAIL+'FAILED', fname, bcolors.ENDC)
         print('.................')
         print(trace)
         print()

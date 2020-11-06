@@ -1,5 +1,4 @@
-from constants import year_pattern, date_pattern
-from functools import reduce
+from constants import year_pattern, date_pattern, verbose_pattern, days_verbose_pattern
 import traceback
 
 passed = 0
@@ -30,18 +29,17 @@ def log_pass_fail(f):
 @log_pass_fail
 def test_year_formats():
     valid_years = [
-        '1700', '1123', '1500\'s', '1643', '1809', '1888', '1999', '1994', '1543',
-        '2020', '2021', '2000s', '2111', '2100'
+        '1700', '1123', '1500', '1643', '1809', '1888', '1999', '1994', '1543',
+        '2020', '2021', '2000', '2111', '2100'
     ]
 
     invalid_years = [
-        '1', '', '000', '111111', '121121212', '9900', '9999', '0000', '4500',
+        '1', '', '000', '9900', '9999', '0000', '4500',
         '3402', '3111'
     ]
     for valid in valid_years:
         m = year_pattern.match(valid)
         assert m, f'{valid} is a valid year'
-        assert m.group(1) == valid[:5]
 
     for invalid in invalid_years:
         assert not year_pattern.match(invalid), f'{invalid} is an invalid year'
@@ -64,37 +62,45 @@ def test_date_formats():
         '29-Dec-1994',
 
         '29th December 1994',
-        '1st March 1994',
+        '1st March 1999',
         '2nd July 2000',
         '3rd May 2000',
     ]
     for date in valid_dates:
-        date_pattern.match(date), f'{date} is a valid format'
-
-
-def add_this_last_next(times):
-    return reduce(
-        lambda a, x: [*a, *[f'{y} {x}' for y in ['this', 'last', 'next']]],
-        times,
-        []
-    )
+        assert date_pattern.match(date.lower()), f'{date} is a valid format'
 
 
 @log_pass_fail
 def test_extra_dates():
-    dates = [
-        'today', 'yesterday', 'tomorrow',
-        *add_this_last_next([
-            'year', 'month', 'decade', 'century', 'week', 'millenium'
-        ]),
+    verbose_dates = [
+        'today', 'yesterday', 'tomorrow', 'Today',
+        'year', 'month', 'decade', 'century', 'week', 'millenium',
+        'Last year',
+        'Next  month',
+        'this   Century',
+        'next millEnium',
     ]
-    assert False, "not implemented test"
+
+    for v in verbose_dates:
+        verbose_pattern.match(v.lower()), f'{v} is a valid verbose date'
+
+
+@log_pass_fail
+def test_days_verbose():
+    days = [
+        'Sunday', ' Monday', 'last wednesday', 'next Saturday', 'This thursday',
+        'friday', 'Thursday'
+    ]
+
+    for d in days:
+        assert days_verbose_pattern.match(d.lower()), f'{d} is a valid verbose day'
 
 
 def main():
     test_year_formats()
     test_date_formats()
     test_extra_dates()
+    test_days_verbose()
     print()
     print('TOTAL', total)
     print('PASSED', passed)
